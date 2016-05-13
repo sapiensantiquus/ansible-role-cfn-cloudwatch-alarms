@@ -1,0 +1,91 @@
+
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  "Resources" : {
+    {% for alarm in cloudwatch_alarms %}
+    "{{ alarm.name }}": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "AlarmDescription": "{{ alarm.description | default(omit) }}",
+        "Namespace": "{{ alarm.namespace }}",
+        "MetricName": "{{ alarm.metric }}",
+        "Dimensions": [
+        {% for dimension in alarm.dimensions %}
+          {
+            "Name": "{{ dimension.name }}",
+            "Value" : "{{ dimension.value }}"
+          }
+        {% if not loop.last %}, {% endif %}
+        {% endfor %}
+        ],
+        "Statistic": "{{ alarm.statistic }}",
+        "Period": "{{ alarm.period_length }}",
+        "EvaluationPeriods": "{{ alarm.eval_periods }}",
+        "Threshold": "{{ alarm.threshold }}",
+        "ComparisonOperator": "{{ alarm.comparison_operator }}",
+        {% if alarm.unit is defined %}
+        "Unit" : "{{ alarm.unit }}",
+        {% endif %}
+        "AlarmActions": [
+          {% if alarm.sns_topic_name is defined %}
+            { "Ref" : "{{ alarm.sns_topic_name }}" }
+          {% elif cloudwatch_sns_topic_name is defined %}
+            { "Ref" : "{{ cloudwatch_sns_topic_name }}" }
+          {% endif %}
+        ]
+        {% if alarm.insufficient_data_actions is defined %}
+        "InsufficientDataActions": [
+          {% for action_arn in alarm.insufficient_data_actions %}
+            {{ action_arn }}
+          {% endfor %}
+        ]
+        {% endif %}
+      }
+    }
+    {% if alarm.create_sns_topic is defined and alarm.create_sns_topic == 'true'  %}
+    ,
+    "{{ alarm.sns_topic_name }}" : {
+      "Type" : "AWS::SNS::Topic",
+      "Properties" : {
+        "DisplayName" : "{{ alarm.sns_topic_display_name | default(alarm.sns_topic_name) }}" ,
+        {% if alarm.sns_topic_subscriptions is defined %}
+        "Subscription" : [
+        {% for subscription in alarm.sns_topic_subscriptions %}
+          {
+            "Endpoint": "{{ subscription.endpoint }}",
+            "Protocol": "{{ subscription.protocol }}"
+          }
+          {% if not loop.last %}, {% endif %}
+        {% endfor %}
+        ],
+        {% endif %}
+        "TopicName" : "{{ alarm.sns_topic_name }}"
+      }
+    }
+    {% endif %}
+    {% if not loop.last %}, {% endif %}
+    {% endfor %}
+    {% if cloudwatch_sns_topic_name is defined %}
+    ,
+    "{{ cloudwatch_sns_topic_name }}" : {
+      "Type" : "AWS::SNS::Topic",
+      "Properties" : {
+        "DisplayName" : "{{ cloudwatch_sns_topic_display_name | default(cloudwatch_sns_topic_name) }}" ,
+        {% if cloudwatch_sns_topic_subscriptions is defined %}
+        "Subscription" : [
+        {% for subscription in cloudwatch_sns_topic_subscriptions %}
+          {
+            "Endpoint": "{{ subscription.endpoint }}",
+            "Protocol": "{{ subscription.protocol }}"
+          }
+          {% if not loop.last %}, {% endif %}
+        {% endfor %}
+        ],
+        {% endif %}
+        "TopicName" : "{{ cloudwatch_sns_topic_name }}"
+      }
+    }
+    {% endif %}
+
+  }
+}

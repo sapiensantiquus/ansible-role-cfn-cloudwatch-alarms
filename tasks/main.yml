@@ -1,0 +1,27 @@
+- name: Create necessary directories
+  file:
+    state: directory
+    path: "{{ item }}"
+  with_items:
+    - "{{ cloudwatch_build_dir }}"
+    - "{{ cloudwatch_template_dir }}"
+
+- name: Template alarms
+  template:
+    src: cloudwatch.json.j2
+    dest: "{{ cloudwatch_template_dir }}/{{ cloudwatch_template_name }}"
+
+- name: Deploy alarms (using security_token)
+  cloudformation:
+    template: "{{ cloudwatch_template_dir }}/{{ cloudwatch_template_name }}"
+    region: "{{ cloudwatch_region }}"
+    stack_name: "{{ cloudwatch_stack_name }}"
+    security_token: "{{ security_token }}"
+  when: security_token is defined
+
+- name: Deploy alarms (no security_token)
+  cloudformation:
+    template: "{{ cloudwatch_template_dir }}/{{ cloudwatch_template_name }}"
+    region: "{{ cloudwatch_region }}"
+    stack_name: "{{ cloudwatch_stack_name }}"
+  when: security_token is not defined

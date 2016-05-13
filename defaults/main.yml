@@ -1,0 +1,3 @@
+cloudwatch_build_dir: "{{ playbook_dir }}/build"
+cloudwatch_template_dir: "{{ cloudwatch_build_dir }}"
+cloudwatch_template_name: "{{ cloudwatch_stack_name }}.json"
