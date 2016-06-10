@@ -6,7 +6,7 @@
     "{{ alarm.name }}": {
       "Type": "AWS::CloudWatch::Alarm",
       "Properties": {
-        "AlarmDescription": "{{ alarm.description | default(omit) }}",
+        "AlarmDescription": "{{ alarm.description | default('') }}",
         "Namespace": "{{ alarm.namespace }}",
         "MetricName": "{{ alarm.metric }}",
         "Dimensions": [
@@ -31,6 +31,8 @@
             { "Ref" : "{{ alarm.sns_topic_name }}" }
           {% elif cloudwatch_sns_topic_name is defined %}
             { "Ref" : "{{ cloudwatch_sns_topic_name }}" }
+          {% elif alarm.action_arn is defined %}
+            "{{ alarm.action_arn }}"
           {% endif %}
         ]
         {% if alarm.insufficient_data_actions is defined %}
