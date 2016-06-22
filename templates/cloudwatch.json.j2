@@ -31,6 +31,8 @@
             { "Ref" : "{{ alarm.sns_topic_name }}" }
           {% elif cloudwatch_sns_topic_name is defined %}
             { "Ref" : "{{ cloudwatch_sns_topic_name }}" }
+          {% elif cloudwatch_sns_topic_arn is defined %}
+            "{{ cloudwatch_sns_topic_arn }}"
           {% elif alarm.action_arn is defined %}
             "{{ alarm.action_arn }}"
           {% endif %}
