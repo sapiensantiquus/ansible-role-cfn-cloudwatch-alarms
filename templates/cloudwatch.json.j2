@@ -30,7 +30,9 @@
           {% if alarm.sns_topic_name is defined %}
             { "Ref" : "{{ alarm.sns_topic_name }}" }
           {% elif cloudwatch_sns_topic_name is defined %}
-            { "Ref" : "{{ cloudwatch_sns_topic_name }}" }
+            { "Ref" : "{{ cloudwatch_new_sns_topic_name }}" }
+          {% elif cloudwatch_sns_topic_name is defined %}
+            { "Ref" : "{{ cloudwatch_new_sns_topic_name }}" }
           {% elif alarm.action_arn is defined %}
             "{{ alarm.action_arn }}"
           {% endif %}
@@ -67,15 +69,15 @@
     {% endif %}
     {% if not loop.last %}, {% endif %}
     {% endfor %}
-    {% if cloudwatch_sns_topic_name is defined %}
+    {% if cloudwatch_new_sns_topic_name is defined %}
     ,
-    "{{ cloudwatch_sns_topic_name }}" : {
+    "{{ cloudwatch_sns_new_topic_name }}" : {
       "Type" : "AWS::SNS::Topic",
       "Properties" : {
-        "DisplayName" : "{{ cloudwatch_sns_topic_display_name | default(cloudwatch_sns_topic_name) }}" ,
-        {% if cloudwatch_sns_topic_subscriptions is defined %}
+        "DisplayName" : "{{ cloudwatch_new_sns_topic_display_name | default(cloudwatch_new_sns_topic_name) }}" ,
+        {% if cloudwatch_new_sns_topic_subscriptions is defined %}
         "Subscription" : [
-        {% for subscription in cloudwatch_sns_topic_subscriptions %}
+        {% for subscription in cloudwatch_sns_new_topic_subscriptions %}
           {
             "Endpoint": "{{ subscription.endpoint }}",
             "Protocol": "{{ subscription.protocol }}"
@@ -84,7 +86,7 @@
         {% endfor %}
         ],
         {% endif %}
-        "TopicName" : "{{ cloudwatch_sns_topic_name }}"
+        "TopicName" : "{{ cloudwatch_new_sns_topic_name }}"
       }
     }
     {% endif %}
