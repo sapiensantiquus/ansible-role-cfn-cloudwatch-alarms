@@ -23,7 +23,7 @@ LABEL TEST_TAG=$$TEST_TAG
 ADD tests /tmp/playbook
 ADD . /tmp/playbook/roles/$$TEST_LABEL
 WORKDIR /tmp/playbook
-RUN ansible-playbook $$ANSIBLE_OPTIONS -i inventory test.yml -e environ=dev -e region=us-west-2 -e cloudwatch_alarm_action_arn=${CLOUDWATCH_ALARM_ACTION_ARN}
+RUN ansible-playbook $$ANSIBLE_OPTIONS -i inventory test.yml -e environ=dev -e region=us-west-2 -e cw_alarms_action_arn=${CW_ALARMS_ACTION_ARN}
 endef
 export DOCKER_BODY
 

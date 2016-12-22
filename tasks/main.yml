@@ -3,25 +3,22 @@
     state: directory
     path: "{{ item }}"
   with_items:
-    - "{{ cloudwatch_build_dir }}"
-    - "{{ cloudwatch_template_dir }}"
+    - "{{ cw_alarms_build_dir }}"
+    - "{{ cw_alarms_template_dir }}"
 
 - name: Template alarms
   template:
     src: cloudwatch.json.j2
-    dest: "{{ cloudwatch_template_dir }}/{{ cloudwatch_template_name }}"
+    dest: "{{ cw_alarms_template_dir }}/{{ cw_alarms_template_name }}"
 
-- name: Deploy alarms (using security_token)
-  cloudformation:
-    template: "{{ cloudwatch_template_dir }}/{{ cloudwatch_template_name }}"
-    region: "{{ cloudwatch_region }}"
-    stack_name: "{{ cloudwatch_stack_name }}"
-    security_token: "{{ security_token }}"
-  when: security_token is defined
 
-- name: Deploy alarms (no security_token)
+- shell: "cat {{ cw_alarms_template_dir }}/{{ cw_alarms_template_name }}"
+
+
+- name: Deploy alarms
   cloudformation:
-    template: "{{ cloudwatch_template_dir }}/{{ cloudwatch_template_name }}"
-    region: "{{ cloudwatch_region }}"
-    stack_name: "{{ cloudwatch_stack_name }}"
-  when: security_token is not defined
+    template: "{{ cw_alarms_template_dir }}/{{ cw_alarms_template_name }}"
+    region: "{{ cw_alarms_region }}"
+    stack_name: "{{ cw_alarms_stack_name }}"
+    state: "{{ cw_alarms_stack_state }}"
+    security_token: "{{ ansible_security_token | default(omit, true) }}"

@@ -1,0 +1,21 @@
+- hosts: test
+  vars:
+    cw_alarms_stack_name: ansible-role-cfn-cloudwatch-alarms-testing
+    cw_alarms:
+      - name: "MemoryUtilizationAlarm"
+        namespace: "System/Linux"
+        metric: "MemoryUtilization"
+        eval_periods: 1
+        statistic: "Minimum"
+        threshold: 10
+        unit: "Percent"
+        period_length: 60
+        comparison_operator: "GreaterThanOrEqualToThreshold"
+        actions:
+          - "{{ cw_alarms_action_arn }}"
+        dimensions:
+          - name: "AppName"
+            value: "TestCustomMetric"
+#    ansible_security_token: "{{ lookup('env','AWS_SESSION_TOKEN') }}"
+  roles:
+    - ansible-role-cfn-cloudwatch-alarms
