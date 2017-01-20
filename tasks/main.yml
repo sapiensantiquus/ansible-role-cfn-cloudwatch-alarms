@@ -22,3 +22,4 @@
     stack_name: "{{ cw_alarms_stack_name }}"
     state: "{{ cw_alarms_stack_state }}"
     security_token: "{{ ansible_security_token | default(omit, true) }}"
+    region: "{{ cw_alarms_stack_region }}"
